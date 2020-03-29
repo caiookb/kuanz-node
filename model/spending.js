@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const IncomeSchema = new Schema({
+const Spending = new Schema({
   name: {
     type: String,
     required: true
@@ -19,13 +19,18 @@ const IncomeSchema = new Schema({
     required: true,
     default: "spending"
   },
-  received: {
+  paid: {
     type: Boolean,
     require: true
   },
-  receiveDate: {
+  paidDate: {
     type: Date,
     required: true
+  },
+  repeat: {
+    type: Number,
+    required: false,
+    default: 0
   },
   userId: {
     type: String,
@@ -37,8 +42,8 @@ const IncomeSchema = new Schema({
   }
 });
 
-IncomeSchema.pre("save", async function(next) {
+Spending.pre("save", async function(next) {
   return next();
 });
 
-module.exports = mongoose.model("Income", IncomeSchema);
+module.exports = mongoose.model("Spending", Spending);
