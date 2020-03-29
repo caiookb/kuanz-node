@@ -9,6 +9,14 @@ const createUserToken = user => {
   });
 };
 
+const decoded = async req => {
+  const {
+    headers: { auth }
+  } = req;
+  const userDecoded = await jwt.decode(auth);
+  return userDecoded.user;
+};
+
 module.exports = {
   authenticate: async (req, res) => {
     const { email, password } = req.body;
@@ -32,21 +40,6 @@ module.exports = {
     }
   },
 
-  getAll: async (req, res) => {
-    console.log(res.locals.auth_data);
-    try {
-      const users = await Users.find({});
-      return res.status(200).send(users);
-    } catch (err) {
-      return res.status(500).send({ error: "Erro na consulta de usuários!" });
-    }
-  },
-
-  me: function(req, res, user) {
-    console.log(user);
-    return res.status(200).json(user);
-  },
-
   createUser: async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.send({ error: "Dados insuficientes" });
@@ -60,6 +53,14 @@ module.exports = {
       return res.status(201).send({ user, token: createUserToken(user) });
     } catch (err) {
       return res.status(500).send({ error: "Erro ao buscar user" });
+    }
+  },
+  me: async (req, res) => {
+    try {
+      const userDecoded = await decoded(req);
+      return res.status(200).send(userDecoded);
+    } catch (err) {
+      return res.status(500).send({ error: "Erro na consulta de usuários!" });
     }
   }
 };
