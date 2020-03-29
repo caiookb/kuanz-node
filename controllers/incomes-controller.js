@@ -26,7 +26,12 @@ module.exports = {
     try {
       const userDecoded = await decoded(req);
       const incomes = await Incomes.find({ userId: userDecoded._id });
-      return res.status(200).send(incomes);
+      const totalSum = incomes
+        .map(income => {
+          return income.value;
+        })
+        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+      return res.status(200).send({ totalValue: totalSum, incomes });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
