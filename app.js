@@ -8,6 +8,8 @@ const cors = require("cors");
 const indexRoute = require("./routes/index");
 const usersRoute = require("./routes/users");
 const incomesRoute = require("./routes/incomes");
+const spendingRoute = require("./routes/spending");
+const goalsRoute = require("./routes/goals");
 
 const url = config.bd_string;
 
@@ -40,7 +42,8 @@ app.use(cors());
 app.use("/", indexRoute);
 app.use("/users", usersRoute);
 app.use("/incomes", incomesRoute);
-
+app.use("/spending", spendingRoute);
+app.use("/goals", goalsRoute);
 app.listen(5000, () => {
   console.log("conectado");
 });
