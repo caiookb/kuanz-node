@@ -13,14 +13,16 @@ const goalsRoute = require("./src/routes/goals");
 const url = config.bd_string;
 
 const options = {
-  reconnectTries: Number.MAX_VALUE,
-  reconnectInterval: 500,
-  poolSize: 5,
   useNewUrlParser: true,
   useUnifiedTopology: true
 };
 
-mongoose.connect(url, useUnifiedTopology=false);
+try {
+  await mongoose.connect(url, options);
+} catch (err) {
+  console.log("erro ao conectar ao banco", err);
+}
+
 mongoose.set("useCreateIndex", true);
 
 mongoose.connection.on("error", err => {
