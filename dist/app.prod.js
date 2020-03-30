@@ -1,1 +1,57 @@
-"use strict";var express=require("express"),app=express(),config=require("./src/config/config"),mongoose=require("mongoose"),bodyParser=require("body-parser"),cors=require("cors"),indexRoute=require("./src/routes/index"),usersRoute=require("./src/routes/users"),incomesRoute=require("./src/routes/incomes"),spendingRoute=require("./src/routes/spending"),goalsRoute=require("./src/routes/goals"),url=config.bd_string,options={reconnectTries:Number.MAX_VALUE,reconnectInterval:500,poolSize:5,useNewUrlParser:!0,useUnifiedTopology:!0};mongoose.connect(url,useUnifiedTopology=!1),mongoose.set("useCreateIndex",!0),mongoose.connection.on("error",function(e){console.log("Erro do banco: ",e)}),mongoose.connection.on("connected",function(e){console.log("Conectado ao banco de dados!")}),mongoose.connection.on("disconnected",function(){console.log("Desconectado do banco!")}),app.use(bodyParser.urlencoded({extended:!1})),app.use(bodyParser.json()),app.use(cors()),app.use("/",indexRoute),app.use("/users",usersRoute),app.use("/incomes",incomesRoute),app.use("/spending",spendingRoute),app.use("/goals",goalsRoute),app.listen(5e3,function(){console.log("conectado")}),module.exports=app;
+"use strict";
+
+var express = require("express");
+
+var app = express();
+
+var config = require("./src/config/config");
+
+var mongoose = require("mongoose");
+
+var bodyParser = require("body-parser");
+
+var cors = require("cors");
+
+var indexRoute = require("./src/routes/index");
+
+var usersRoute = require("./src/routes/users");
+
+var incomesRoute = require("./src/routes/incomes");
+
+var spendingRoute = require("./src/routes/spending");
+
+var goalsRoute = require("./src/routes/goals");
+
+var url = config.bd_string;
+var options = {
+  reconnectTries: Number.MAX_VALUE,
+  reconnectInterval: 500,
+  poolSize: 5,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+};
+mongoose.connect(url, useUnifiedTopology = false);
+mongoose.set("useCreateIndex", true);
+mongoose.connection.on("error", function (err) {
+  console.log("Erro do banco: ", err);
+});
+mongoose.connection.on("connected", function (err) {
+  console.log("Conectado ao banco de dados!");
+});
+mongoose.connection.on("disconnected", function () {
+  console.log("Desconectado do banco!");
+});
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+app.use(bodyParser.json());
+app.use(cors());
+app.use("/", indexRoute);
+app.use("/users", usersRoute);
+app.use("/incomes", incomesRoute);
+app.use("/spending", spendingRoute);
+app.use("/goals", goalsRoute);
+app.listen(5000, function () {
+  console.log("conectado");
+});
+module.exports = app;
