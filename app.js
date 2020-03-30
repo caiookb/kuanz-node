@@ -1,15 +1,15 @@
 const express = require("express");
 const app = express();
-const config = require("./config/config");
+const config = require("./src/config/config");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const indexRoute = require("./routes/index");
-const usersRoute = require("./routes/users");
-const incomesRoute = require("./routes/incomes");
-const spendingRoute = require("./routes/spending");
-const goalsRoute = require("./routes/goals");
+const indexRoute = require("./src/routes/index");
+const usersRoute = require("./src/routes/users");
+const incomesRoute = require("./src/routes/incomes");
+const spendingRoute = require("./src/routes/spending");
+const goalsRoute = require("./src/routes/goals");
 const url = config.bd_string;
 
 const options = {
