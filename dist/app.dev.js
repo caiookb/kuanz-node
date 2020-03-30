@@ -30,7 +30,7 @@ var options = {
   useNewUrlParser: true,
   useUnifiedTopology: true
 };
-mongoose.connect(url, options);
+mongoose.connect(url, useUnifiedTopology = false);
 mongoose.set("useCreateIndex", true);
 mongoose.connection.on("error", function (err) {
   console.log("Erro do banco: ", err);
