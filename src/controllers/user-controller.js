@@ -46,7 +46,7 @@ module.exports = {
 
     try {
       if (await Users.findOne({ email }))
-        return res.send({ error: "usuário já existe!" });
+        return res.send({ error: "O email já é utilizado!" });
 
       const user = await Users.create(req.body);
       user.password = undefined;
