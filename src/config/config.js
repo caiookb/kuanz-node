@@ -5,7 +5,7 @@ const config = () => {
     case "dev":
       return {
         bd_string:
-          "mongodb+srv://cmAdmin:hmuewvjQuLGu0wV4@kuanz-db-cd0qm.gcp.mongodb.net/test?retryWrites=true&w=majority",
+          "mongodb+srv://dbKuanz:fACykYE5KQOnit1E@kuanz-db-ebxye.mongodb.net/test?retryWrites=true&w=majority",
         jwt_secret: "matoras600kuanz",
         jwt_expires_in: "7d",
         jwtSession: { session: false }
@@ -19,7 +19,7 @@ const config = () => {
     case "production":
       return {
         bd_string:
-          "mongodb+srv://cmAdmin:hmuewvjQuLGu0wV4@kuanz-db-cd0qm.gcp.mongodb.net/test?retryWrites=true&w=majority",
+          "mongodb+srv://dbKuanz:fACykYE5KQOnit1E@kuanz-db-ebxye.mongodb.net/test?retryWrites=true&w=majority",
         jwt_secret: "matoras600kuanz",
         jwt_expires_in: "7d",
         jwtSession: { session: false }
