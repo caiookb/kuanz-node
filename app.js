@@ -18,7 +18,7 @@ const options = {
 };
 
 try {
-  await mongoose.connect(url, options);
+  mongoose.connect(url, options);
 } catch (err) {
   console.log("erro ao conectar ao banco", err);
 }
