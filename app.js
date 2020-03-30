@@ -10,7 +10,7 @@ const usersRoute = require("./routes/users");
 const incomesRoute = require("./routes/incomes");
 const spendingRoute = require("./routes/spending");
 const goalsRoute = require("./routes/goals");
-
+const config = require("./config/config");
 const url = config.bd_string;
 
 const options = {
