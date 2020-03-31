@@ -12,14 +12,19 @@ const decoded = async req => {
 module.exports = {
   createGoal: async (req, res) => {
     try {
+      const { name, estimated_date } = req.body;
+      if (!name || !estimated_date)
+        return res.status(400).send({ error: "Dados insuficientes!" });
+
       const userDecoded = await decoded(req);
-      req.body.userId = userDecoded._id;
+      req.body.userId = await userDecoded._id;
       const goals = await Goals.create(req.body);
-      return res
-        .status(201)
-        .send({ goals, message: "Meta cadastrada com sucesso!" });
+      console.log("GOALS", goals);
+      return res.status(201).send({ success: true, goals });
     } catch (err) {
-      res.status(500).send({ error: "Ocorreu algum erro na requisição" });
+      return res
+        .status(500)
+        .send({ error: "Ocorreu algum erro na requisssição" });
     }
   },
   getGoalsByUser: async (req, res) => {

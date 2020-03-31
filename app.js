@@ -45,6 +45,7 @@ app.use("/users", usersRoute);
 app.use("/incomes", incomesRoute);
 app.use("/spending", spendingRoute);
 app.use("/goals", goalsRoute);
+
 app.listen(process.env.PORT || 5000, () => {
   console.log("conectado");
 });

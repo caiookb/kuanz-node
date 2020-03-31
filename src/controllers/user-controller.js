@@ -43,7 +43,7 @@ module.exports = {
   createUser: async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.send({ error: "Dados insuficientes" });
-
+    console.log("reqbody", req.body);
     try {
       if (await Users.findOne({ email }))
         return res.send({ error: "O email já é utilizado!" });

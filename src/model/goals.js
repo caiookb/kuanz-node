@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+console.log("salva porraaaaaaaaaaaaa");
 
-const GoalsSchema = new Schema({
+const GoalSchema = new Schema({
   name: {
     type: String,
     required: true
@@ -25,8 +26,8 @@ const GoalsSchema = new Schema({
   }
 });
 
-GoalsSchema.pre("save", async function(next) {
+GoalSchema.pre("save", async function(next) {
   return next();
 });
 
-module.exports = mongoose.model("Goals", GoalsSchema);
+module.exports = mongoose.model("Goal", GoalSchema);

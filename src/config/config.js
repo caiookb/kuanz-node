@@ -4,8 +4,7 @@ const config = () => {
   switch (env) {
     case "dev":
       return {
-        bd_string:
-          "mongodb+srv://dbKuanz:fACykYE5KQOnit1E@kuanz-db-ebxye.mongodb.net/test?retryWrites=true&w=majority",
+        bd_string: "mongodb://localhost/node_rest_api",
         jwt_secret: "matoras600kuanz",
         jwt_expires_in: "7d",
         jwtSession: { session: false }
