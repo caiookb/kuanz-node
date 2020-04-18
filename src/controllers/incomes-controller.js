@@ -1,9 +1,9 @@
 const Incomes = require("../model/incomes");
 const jwt = require("jsonwebtoken");
 
-const decoded = async req => {
+const decoded = async (req) => {
   const {
-    headers: { auth }
+    headers: { auth },
   } = req;
   const userDecoded = await jwt.decode(auth);
   return userDecoded.user;
@@ -15,9 +15,14 @@ module.exports = {
       const userDecoded = await decoded(req);
       req.body.userId = userDecoded._id;
       const incomes = await Incomes.create(req.body);
+      const allIncomes = await Incomes.find({ userId: userDecoded._id });
       return res
         .status(201)
-        .send({ incomes, message: "Receita cadastrada com sucesso!" });
+        .send({
+          incomes,
+          allIncomes,
+          message: "Receita cadastrada com sucesso!",
+        });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
@@ -27,7 +32,7 @@ module.exports = {
       const userDecoded = await decoded(req);
       const incomes = await Incomes.find({ userId: userDecoded._id });
       const totalSum = incomes
-        .map(income => {
+        .map((income) => {
           return income.value;
         })
         .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
@@ -42,11 +47,11 @@ module.exports = {
       const userDecoded = await decoded(req);
       const incomeToDelete = await Incomes.findOne({
         _id: income_id,
-        userId: userDecoded._id
+        userId: userDecoded._id,
       });
       const remove = await Incomes.remove({
         _id: incomeToDelete._id,
-        userId: incomeToDelete.userId
+        userId: incomeToDelete.userId,
       });
       res.status(200).send({ remove, message: "deletado com sucesso!" });
     } catch (err) {
@@ -61,7 +66,7 @@ module.exports = {
       const update = await Incomes.findByIdAndUpdate(
         {
           userId: userDecoded._id,
-          _id: _id
+          _id: _id,
         },
         { ...newValues },
         { useFindAndModify: true }
@@ -81,11 +86,11 @@ module.exports = {
 
       const income = await Incomes.findOne({
         userId: userDecoded._id,
-        _id: _id
+        _id: _id,
       });
       return res.status(200).send(income);
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
-  }
+  },
 };
