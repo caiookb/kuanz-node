@@ -1,9 +1,9 @@
 const Goals = require("../model/goals");
 const jwt = require("jsonwebtoken");
 
-const decoded = async req => {
+const decoded = async (req) => {
   const {
-    headers: { auth }
+    headers: { auth },
   } = req;
   const userDecoded = await jwt.decode(auth);
   return userDecoded.user;
@@ -19,8 +19,10 @@ module.exports = {
       const userDecoded = await decoded(req);
       req.body.userId = await userDecoded._id;
       const goals = await Goals.create(req.body);
+      const allGoals = await Goals.find({ userId: userDecoded._id });
+
       console.log("GOALS", goals);
-      return res.status(201).send({ success: true, goals });
+      return res.status(201).send({ success: true, goals, allGoals });
     } catch (err) {
       return res
         .status(500)
@@ -42,11 +44,11 @@ module.exports = {
       const userDecoded = await decoded(req);
       const goalToDelete = await Goals.findOne({
         _id: goal_id,
-        userId: userDecoded._id
+        userId: userDecoded._id,
       });
       const remove = await Incomes.remove({
         _id: goalToDelete._id,
-        userId: goalToDelete.userId
+        userId: goalToDelete.userId,
       });
       res.status(200).send({ remove, message: "Meta apagada com sucesso!" });
     } catch (err) {
@@ -61,7 +63,7 @@ module.exports = {
       const update = await Goals.findByIdAndUpdate(
         {
           userId: userDecoded._id,
-          _id: _id
+          _id: _id,
         },
         { ...newValues },
         { useFindAndModify: true }
@@ -78,11 +80,11 @@ module.exports = {
 
       const goal = await Goals.findOne({
         userId: userDecoded._id,
-        _id: _id
+        _id: _id,
       });
       return res.status(200).send(goal);
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
-  }
+  },
 };
