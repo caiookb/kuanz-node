@@ -3,15 +3,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
 
-const createUserToken = user => {
+const createUserToken = (user) => {
   return jwt.sign({ user }, config.jwt_secret, {
-    expiresIn: config.jwt_expires_in
+    expiresIn: config.jwt_expires_in,
   });
 };
 
-const decoded = async req => {
+const decoded = async (req) => {
   const {
-    headers: { auth }
+    headers: { auth },
   } = req;
   const userDecoded = await jwt.decode(auth);
   return userDecoded.user;
@@ -46,7 +46,7 @@ module.exports = {
     console.log("reqbody", req.body);
     try {
       if (await Users.findOne({ email }))
-        return res.send({ error: "O email já é utilizado!" });
+        return res.status(400).send({ error: "O email já é utilizado!" });
 
       const user = await Users.create(req.body);
       user.password = undefined;
@@ -62,5 +62,5 @@ module.exports = {
     } catch (err) {
       return res.status(500).send({ error: "Erro na consulta de usuários!" });
     }
-  }
+  },
 };
