@@ -16,13 +16,17 @@ module.exports = {
       req.body.userId = userDecoded._id;
       const incomes = await Incomes.create(req.body);
       const allIncomes = await Incomes.find({ userId: userDecoded._id });
-      return res
-        .status(201)
-        .send({
-          incomes,
-          allIncomes,
-          message: "Receita cadastrada com sucesso!",
-        });
+      const totalSum = incomes
+        .map((income) => {
+          return income.value;
+        })
+        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+      return res.status(201).send({
+        incomes,
+        allIncomes,
+        totalValue: totalSum,
+        message: "Receita cadastrada com sucesso!",
+      });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }

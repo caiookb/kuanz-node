@@ -15,9 +15,15 @@ module.exports = {
     req.body.userId = userDecoded._id;
     const spendings = await Spending.create(req.body);
     const allSpendings = await Spending.find({ userId: userDecoded._id });
+    const totalSum = spendings
+      .map((spending) => {
+        return spending.value;
+      })
+      .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
     return res.status(201).send({
       spendings,
       allSpendings,
+      totalValue: totalSum,
       message: "Despesa cadastrada com sucesso!",
     });
   },
