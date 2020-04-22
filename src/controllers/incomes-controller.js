@@ -16,7 +16,7 @@ module.exports = {
       req.body.userId = userDecoded._id;
       const incomes = await Incomes.create(req.body);
       const allIncomes = await Incomes.find({ userId: userDecoded._id });
-      const totalSum = incomes
+      const totalSum = allIncomes
         .map((income) => {
           return income.value;
         })
