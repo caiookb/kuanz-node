@@ -4,40 +4,45 @@ const Schema = mongoose.Schema;
 const IncomeSchema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   value: {
     type: String,
-    required: true
+    required: true,
   },
   type: {
     type: String,
-    required: true
+    required: true,
   },
   category: {
     type: String,
     required: true,
-    default: "income"
+    default: "income",
   },
   received: {
     type: Boolean,
-    require: true
+    require: true,
   },
   receiveDate: {
     type: Date,
-    required: true
+    required: true,
+  },
+  period: {
+    type: String,
+    required: false,
+    default: 0,
   },
   userId: {
     type: String,
-    required: true
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-IncomeSchema.pre("save", async function(next) {
+IncomeSchema.pre("save", async function (next) {
   return next();
 });
 
