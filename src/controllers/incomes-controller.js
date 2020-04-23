@@ -1,5 +1,6 @@
 const Incomes = require("../model/incomes");
 const jwt = require("jsonwebtoken");
+const moment = require("moment");
 
 const decoded = async (req) => {
   const {
@@ -12,9 +13,22 @@ const decoded = async (req) => {
 module.exports = {
   createIncome: async (req, res) => {
     try {
+      const { period, repeat, receiveDate } = req.body;
       const userDecoded = await decoded(req);
       req.body.userId = userDecoded._id;
-      const incomes = await Incomes.create(req.body);
+
+      if (repeat >= 2) {
+        for (let i = 0; i < repeat; i++) {
+          const futureDate = moment(receiveDate)
+            .add(i, period)
+            .format("YYYY-MM-DD");
+          req.body.receiveDate = futureDate;
+          await Incomes.create(req.body);
+        }
+      } else {
+        await Incomes.create(req.body);
+      }
+
       const allIncomes = await Incomes.find({ userId: userDecoded._id });
       const totalSum = allIncomes
         .map((income) => {
@@ -22,7 +36,6 @@ module.exports = {
         })
         .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
       return res.status(201).send({
-        incomes,
         allIncomes,
         totalValue: totalSum,
         message: "Receita cadastrada com sucesso!",
@@ -33,8 +46,16 @@ module.exports = {
   },
   getIncomesByUser: async (req, res) => {
     try {
+      const { firstDate, lastDate } = req.query;
       const userDecoded = await decoded(req);
-      const incomes = await Incomes.find({ userId: userDecoded._id });
+      const incomes = await Incomes.find({ userId: userDecoded._id }).filter(
+        (income) => {
+          return (
+            moment(income.receiveDate) < moment(lastDate) &&
+            moment(income.receiveDate) > moment(firstDate)
+          );
+        }
+      );
       const totalSum = incomes
         .map((income) => {
           return income.value;
@@ -57,7 +78,18 @@ module.exports = {
         _id: incomeToDelete._id,
         userId: incomeToDelete.userId,
       });
-      res.status(200).send({ remove, message: "deletado com sucesso!" });
+      const allIncomes = await Incomes.find({ userId: userDecoded._id });
+      const totalSum = allIncomes
+        .map((income) => {
+          return income.value;
+        })
+        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+      res.status(200).send({
+        remove,
+        allIncomes,
+        totalValue: totalSum,
+        message: "deletado com sucesso!",
+      });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
@@ -76,9 +108,19 @@ module.exports = {
         { useFindAndModify: true }
       );
 
-      res
-        .status(200)
-        .send({ update, message: "Receita atualizada com sucesso!" });
+      const allIncomes = await Incomes.find({ userId: userDecoded._id });
+      const totalSum = allIncomes
+        .map((income) => {
+          return income.value;
+        })
+        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+
+      res.status(200).send({
+        update,
+        allIncomes,
+        totalValue: totalSum,
+        message: "Receita atualizada com sucesso!",
+      });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
