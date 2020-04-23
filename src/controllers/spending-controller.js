@@ -1,5 +1,6 @@
 const Spending = require("../model/spending");
 const jwt = require("jsonwebtoken");
+const moment = require("moment");
 
 const decoded = async (req) => {
   const {
@@ -11,26 +12,51 @@ const decoded = async (req) => {
 
 module.exports = {
   createSpending: async (req, res) => {
-    const userDecoded = await decoded(req);
-    req.body.userId = userDecoded._id;
-    const spendings = await Spending.create(req.body);
-    const allSpendings = await Spending.find({ userId: userDecoded._id });
-    const totalSum = allSpendings
-      .map((spending) => {
-        return spending.value;
-      })
-      .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
-    return res.status(201).send({
-      spendings,
-      allSpendings,
-      totalValue: totalSum,
-      message: "Despesa cadastrada com sucesso!",
-    });
+    try {
+      const { period, repeat, paidDate } = req.body;
+      const userDecoded = await decoded(req);
+      req.body.userId = userDecoded._id;
+
+      if (repeat >= 2) {
+        for (let i = 0; i < repeat; i++) {
+          const futureDate = moment(paidDate)
+            .add(i, period)
+            .format("YYYY-MM-DD");
+          req.body.paidDate = futureDate;
+          await Spending.create(req.body);
+        }
+      } else {
+        await Spending.create(req.body);
+      }
+
+      const allSpendings = await Spending.find({ userId: userDecoded._id });
+      const totalSum = allSpendings
+        .map((spending) => {
+          return spending.value;
+        })
+        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+
+      return res.status(201).send({
+        allSpendings,
+        totalValue: totalSum,
+        message: "Despesa cadastrada com sucesso!",
+      });
+    } catch (err) {
+      res.status(500).send({ error: "Ocorreu algum erro na requisição" });
+    }
   },
   getSpendingsByUser: async (req, res) => {
     try {
+      const { firstDate, lastDate } = req.query;
       const userDecoded = await decoded(req);
-      const spendings = await Spending.find({ userId: userDecoded._id });
+      const spendings = await (
+        await Spending.find({ userId: userDecoded._id })
+      ).filter((spending) => {
+        return (
+          moment(spending.paidDate) < moment(lastDate) &&
+          moment(spending.paidDate) > moment(firstDate)
+        );
+      });
       const totalSum = spendings
         .map((spending) => {
           return spending.value;
@@ -53,7 +79,18 @@ module.exports = {
         _id: spendingToDelete._id,
         userId: spendingToDelete.userId,
       });
-      res.status(200).send({ remove, message: "Gasto deletado com sucesso!" });
+      const allSpendings = await Spending.find({ userId: userDecoded._id });
+      const totalSum = allSpendings
+        .map((spending) => {
+          return spending.value;
+        })
+        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+      res.status(200).send({
+        remove,
+        allSpendings,
+        totalValue: totalSum,
+        message: "Gasto deletado com sucesso!",
+      });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
@@ -71,10 +108,19 @@ module.exports = {
         { ...newValues },
         { useFindAndModify: true }
       );
+      const allSpendings = await Spending.find({ userId: userDecoded._id });
+      const totalSum = allSpendings
+        .map((spending) => {
+          return spending.value;
+        })
+        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
 
-      res
-        .status(200)
-        .send({ update, message: "Gasto atualizada com sucesso!" });
+      res.status(200).send({
+        update,
+        allSpendings,
+        totalValue: totalSum,
+        message: "Gasto atualizada com sucesso!",
+      });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
