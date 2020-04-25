@@ -10,6 +10,31 @@ const decoded = async (req) => {
   return userDecoded.user;
 };
 
+const getAllIncomesAndSum = async (req) => {
+  try {
+    const { firstDate, lastDate } = req.query;
+    const userDecoded = await decoded(req);
+    const incomes = await Incomes.find({ userId: userDecoded._id });
+    const allIncomes = incomes.filter((income) => {
+      return (
+        moment(income.receiveDate) > moment(firstDate) &&
+        moment(income.receiveDate) < moment(lastDate)
+      );
+    });
+    const totalValue =
+      allIncomes.length > 0
+        ? allIncomes
+            .map((income) => {
+              return income.value;
+            })
+            .reduce((acc, current) => parseFloat(acc) + parseFloat(current))
+        : 0;
+    return { totalValue, allIncomes };
+  } catch (err) {
+    return { totalValue: 0, allIncomes: [] };
+  }
+};
+
 module.exports = {
   createIncome: async (req, res) => {
     try {
@@ -28,16 +53,9 @@ module.exports = {
       } else {
         await Incomes.create(req.body);
       }
-
-      const allIncomes = await Incomes.find({ userId: userDecoded._id });
-      const totalSum = allIncomes
-        .map((income) => {
-          return income.value;
-        })
-        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+      const IncomesAndSum = await getAllIncomesAndSum(req);
       return res.status(201).send({
-        allIncomes,
-        totalValue: totalSum,
+        ...IncomesAndSum,
         message: "Receita cadastrada com sucesso!",
       });
     } catch (err) {
@@ -46,22 +64,8 @@ module.exports = {
   },
   getIncomesByUser: async (req, res) => {
     try {
-      const { firstDate, lastDate } = req.query;
-      const userDecoded = await decoded(req);
-      const incomes = await Incomes.find({ userId: userDecoded._id }).filter(
-        (income) => {
-          return (
-            moment(income.receiveDate) < moment(lastDate) &&
-            moment(income.receiveDate) > moment(firstDate)
-          );
-        }
-      );
-      const totalSum = incomes
-        .map((income) => {
-          return income.value;
-        })
-        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
-      return res.status(200).send({ totalValue: totalSum, incomes });
+      const IncomesAndSum = await getAllIncomesAndSum(req);
+      return res.status(200).send({ ...IncomesAndSum });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
@@ -78,16 +82,9 @@ module.exports = {
         _id: incomeToDelete._id,
         userId: incomeToDelete.userId,
       });
-      const allIncomes = await Incomes.find({ userId: userDecoded._id });
-      const totalSum = allIncomes
-        .map((income) => {
-          return income.value;
-        })
-        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+      const IncomesAndSum = await getAllIncomesAndSum(req);
       res.status(200).send({
-        remove,
-        allIncomes,
-        totalValue: totalSum,
+        ...IncomesAndSum,
         message: "deletado com sucesso!",
       });
     } catch (err) {
@@ -107,18 +104,10 @@ module.exports = {
         { ...newValues },
         { useFindAndModify: true }
       );
-
-      const allIncomes = await Incomes.find({ userId: userDecoded._id });
-      const totalSum = allIncomes
-        .map((income) => {
-          return income.value;
-        })
-        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
-
+      const IncomesAndSum = await getAllIncomesAndSum(req);
       res.status(200).send({
         update,
-        allIncomes,
-        totalValue: totalSum,
+        ...IncomesAndSum,
         message: "Receita atualizada com sucesso!",
       });
     } catch (err) {
