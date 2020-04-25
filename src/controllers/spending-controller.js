@@ -10,6 +10,31 @@ const decoded = async (req) => {
   return userDecoded.user;
 };
 
+const getAllSpendingsAndSum = async (req) => {
+  try {
+    const { firstDate, lastDate } = req.query;
+    const userDecoded = await decoded(req);
+    const spendings = await Spending.find({ userId: userDecoded._id });
+    const allSpendings = spendings.filter((spending) => {
+      return (
+        moment(spending.paidDate) > moment(firstDate) &&
+        moment(spending.paidDate) < moment(lastDate)
+      );
+    });
+    const totalValue =
+      allSpendings.length > 0
+        ? allSpendings
+            .map((spending) => {
+              return spending.value;
+            })
+            .reduce((acc, current) => parseFloat(acc) + parseFloat(current))
+        : 0;
+    return { totalValue, allSpendings };
+  } catch (err) {
+    return { totalValue: 0, allSpendings: [] };
+  }
+};
+
 module.exports = {
   createSpending: async (req, res) => {
     try {
@@ -29,16 +54,9 @@ module.exports = {
         await Spending.create(req.body);
       }
 
-      const allSpendings = await Spending.find({ userId: userDecoded._id });
-      const totalSum = allSpendings
-        .map((spending) => {
-          return spending.value;
-        })
-        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
-
+      const SpendingsAndSum = await getAllSpendingsAndSum(req);
       return res.status(201).send({
-        allSpendings,
-        totalValue: totalSum,
+        ...SpendingsAndSum,
         message: "Despesa cadastrada com sucesso!",
       });
     } catch (err) {
@@ -47,22 +65,8 @@ module.exports = {
   },
   getSpendingsByUser: async (req, res) => {
     try {
-      const { firstDate, lastDate } = req.query;
-      const userDecoded = await decoded(req);
-      const spendings = await (
-        await Spending.find({ userId: userDecoded._id })
-      ).filter((spending) => {
-        return (
-          moment(spending.paidDate) < moment(lastDate) &&
-          moment(spending.paidDate) > moment(firstDate)
-        );
-      });
-      const totalSum = spendings
-        .map((spending) => {
-          return spending.value;
-        })
-        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
-      return res.status(200).send({ totalValue: totalSum, spendings });
+      const SpendingsAndSum = await getAllSpendingsAndSum(req);
+      return res.status(200).send({ ...SpendingsAndSum });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
@@ -79,16 +83,10 @@ module.exports = {
         _id: spendingToDelete._id,
         userId: spendingToDelete.userId,
       });
-      const allSpendings = await Spending.find({ userId: userDecoded._id });
-      const totalSum = allSpendings
-        .map((spending) => {
-          return spending.value;
-        })
-        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
+      const SpendingsAndSum = await getAllSpendingsAndSum(req);
       res.status(200).send({
         remove,
-        allSpendings,
-        totalValue: totalSum,
+        ...SpendingsAndSum,
         message: "Gasto deletado com sucesso!",
       });
     } catch (err) {
@@ -108,17 +106,10 @@ module.exports = {
         { ...newValues },
         { useFindAndModify: true }
       );
-      const allSpendings = await Spending.find({ userId: userDecoded._id });
-      const totalSum = allSpendings
-        .map((spending) => {
-          return spending.value;
-        })
-        .reduce((acc, current) => parseFloat(acc) + parseFloat(current));
-
+      const SpendingsAndSum = await getAllSpendingsAndSum(req);
       res.status(200).send({
         update,
-        allSpendings,
-        totalValue: totalSum,
+        ...SpendingsAndSum,
         message: "Gasto atualizada com sucesso!",
       });
     } catch (err) {
