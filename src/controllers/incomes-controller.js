@@ -29,7 +29,7 @@ const getAllIncomesAndSum = async (req) => {
             })
             .reduce((acc, current) => parseFloat(acc) + parseFloat(current))
         : 0;
-    return { totalValue, allIncomes };
+    return { totalValue: parseFloat(totalValue).toFixed(2), allIncomes };
   } catch (err) {
     return { totalValue: 0, allIncomes: [] };
   }
