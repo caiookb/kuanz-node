@@ -10,11 +10,13 @@ const usersRoute = require("./src/routes/users");
 const incomesRoute = require("./src/routes/incomes");
 const spendingRoute = require("./src/routes/spending");
 const goalsRoute = require("./src/routes/goals");
+const tagsRoute = require("./src/routes/tags");
+
 const url = config.bd_string;
 
 const options = {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 };
 
 try {
@@ -25,10 +27,10 @@ try {
 
 mongoose.set("useCreateIndex", true);
 
-mongoose.connection.on("error", err => {
+mongoose.connection.on("error", (err) => {
   console.log("Erro do banco: ", err);
 });
-mongoose.connection.on("connected", err => {
+mongoose.connection.on("connected", (err) => {
   console.log("Conectado ao banco de dados!");
 });
 mongoose.connection.on("disconnected", () => {
@@ -45,6 +47,7 @@ app.use("/users", usersRoute);
 app.use("/incomes", incomesRoute);
 app.use("/spending", spendingRoute);
 app.use("/goals", goalsRoute);
+app.use("/tags", tagsRoute);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("conectado");
