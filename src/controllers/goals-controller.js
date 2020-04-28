@@ -12,8 +12,8 @@ const decoded = async (req) => {
 module.exports = {
   createGoal: async (req, res) => {
     try {
-      const { name, estimated_date } = req.body;
-      if (!name || !estimated_date)
+      const { name, estimated_date, value } = req.body;
+      if (!name || !estimated_date || !value)
         return res.status(400).send({ error: "Dados insuficientes!" });
 
       const userDecoded = await decoded(req);
@@ -21,8 +21,7 @@ module.exports = {
       const goals = await Goals.create(req.body);
       const allGoals = await Goals.find({ userId: userDecoded._id });
 
-      console.log("GOALS", goals);
-      return res.status(201).send({ success: true, goals, allGoals });
+      return res.status(201).send({ goals, allGoals });
     } catch (err) {
       return res
         .status(500)
@@ -33,7 +32,7 @@ module.exports = {
     try {
       const userDecoded = await decoded(req);
       const goals = await Goals.find({ userId: userDecoded._id });
-      return res.status(200).send(goals);
+      return res.status(200).send({ goals });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
@@ -42,11 +41,12 @@ module.exports = {
     try {
       const { goal_id } = req.body;
       const userDecoded = await decoded(req);
+      console.log("GOAL ID", goal_id);
       const goalToDelete = await Goals.findOne({
         _id: goal_id,
         userId: userDecoded._id,
       });
-      const remove = await Incomes.remove({
+      const remove = await Goals.remove({
         _id: goalToDelete._id,
         userId: goalToDelete.userId,
       });
