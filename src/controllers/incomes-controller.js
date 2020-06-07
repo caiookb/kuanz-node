@@ -90,7 +90,7 @@ module.exports = {
   },
   deleteIncomeById: async (req, res) => {
     try {
-      const { income_id, type, installmentId } = req.body;
+      const { income_id, installmentType, installmentId } = req.body;
       const userDecoded = await decoded(req);
       const actualIncome = await Incomes.findOne({
         _id: income_id,
@@ -101,19 +101,19 @@ module.exports = {
       const futureIncomes = allIncomes.filter(
         (incomes) => moment(incomes.receiveDate) >= actualDate
       );
-      if (type === "ACTUAL") {
+      if (installmentType === "ACTUAL") {
         await Incomes.remove({
           _id: income_id,
           userId: userDecoded._id,
         });
-      } else if (type === "ACTUAL_AND_NEXTS") {
+      } else if (installmentType === "ACTUAL_AND_NEXTS") {
         for (let i = 0; i < futureIncomes.length; i++) {
           await Incomes.remove({
             _id: futureIncomes[i]._id,
             userId: userDecoded._id,
           });
         }
-      } else if (type === "EVERY") {
+      } else if (installmentType === "EVERY") {
         const installmentIncomes = allIncomes.filter((incomes) => {
           return (
             incomes.id == installmentId ||
@@ -139,7 +139,7 @@ module.exports = {
   },
   updateIncomeById: async (req, res) => {
     try {
-      const { income_id, type, installmentId } = req.body;
+      const { income_id, installmentType, installmentId } = req.body;
       const newValues = req.body;
       const userDecoded = await decoded(req);
       const actualIncome = await Incomes.findOne({
@@ -160,14 +160,14 @@ module.exports = {
       filteredIncomes.map((mappedIncomes, i) => {
         mappedIncomes.name = newValues.name;
         mappedIncomes.value = newValues.value;
-        mappedIncomes.type = newValues.type;
+        mappedIncomes.installmentType = newValues.installmentType;
         // mappedIncomes.receiveDate = moment(newValues.receiveDate).add(
         //   i,
         //   period
         // );
       });
 
-      if (type === "ACTUAL") {
+      if (installmentType === "ACTUAL") {
         await Incomes.findOneAndUpdate(
           {
             _id: income_id,
@@ -176,7 +176,7 @@ module.exports = {
           { ...newValues },
           { useFindAndModify: true }
         );
-      } else if (type === "ACTUAL_AND_NEXTS") {
+      } else if (installmentType === "ACTUAL_AND_NEXTS") {
         console.log("Future incomes", filteredIncomes);
 
         for (let i = 0; i < filteredIncomes.length; i++) {
@@ -189,7 +189,7 @@ module.exports = {
             { useFindAndModify: true }
           );
         }
-      } else if (type === "EVERY") {
+      } else if (installmentType === "EVERY") {
         const installmentIncomes = allIncomes.filter((incomes) => {
           return (
             incomes.id == installmentId ||
@@ -200,7 +200,7 @@ module.exports = {
         installmentIncomes.map((mappedIncomes, i) => {
           mappedIncomes.name = newValues.name;
           mappedIncomes.value = newValues.value;
-          mappedIncomes.type = newValues.type;
+          mappedIncomes.installmentType = newValues.installmentType;
           // mappedIncomes.receiveDate = moment(newValues.receiveDate).add(
           //   i,
           //   period

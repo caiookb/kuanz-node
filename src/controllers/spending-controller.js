@@ -91,7 +91,7 @@ module.exports = {
   },
   deleteSpendingById: async (req, res) => {
     try {
-      const { spending_id, type, installmentId } = req.body;
+      const { spending_id, installmentType, installmentId } = req.body;
       const userDecoded = await decoded(req);
       const actualSpending = await Spending.findOne({
         _id: spending_id,
@@ -102,19 +102,19 @@ module.exports = {
       const futureSpending = allSpending.filter(
         (Spending) => moment(Spending.receiveDate) > actualDate
       );
-      if (type === "ACTUAL") {
+      if (installmentType === "ACTUAL") {
         await Spending.remove({
           _id: spending_id,
           userId: userDecoded._id,
         });
-      } else if (type === "ACTUAL_AND_NEXTS") {
+      } else if (installmentType === "ACTUAL_AND_NEXTS") {
         for (let i = 0; i < futureSpending.length; i++) {
           await Spending.remove({
             _id: futureSpending[i]._id,
             userId: userDecoded._id,
           });
         }
-      } else if (type === "EVERY") {
+      } else if (installmentType === "EVERY") {
         const installmentSpending = allSpending.filter((Spending) => {
           return (
             Spending.id == installmentId ||
@@ -139,7 +139,7 @@ module.exports = {
   },
   updateSpendingById: async (req, res) => {
     try {
-      const { spending_id, type, installmentId } = req.body;
+      const { spending_id, installmentType, installmentId } = req.body;
       const newValues = req.body;
       const userDecoded = await decoded(req);
 
@@ -161,14 +161,14 @@ module.exports = {
       filteredSpendings.map((mappedSpendings, i) => {
         mappedSpendings.name = newValues.name;
         mappedSpendings.value = newValues.value;
-        mappedSpendings.type = newValues.type;
+        mappedSpendings.installmentType = newValues.installmentType;
         // mappedSpendings.receiveDate = moment(newValues.receiveDate).add(
         //   i,
         //   period
         // );
       });
 
-      if (type === "ACTUAL") {
+      if (installmentType === "ACTUAL") {
         await Spending.findOneAndUpdate(
           {
             _id: spending_id,
@@ -177,7 +177,7 @@ module.exports = {
           { ...newValues },
           { useFindAndModify: true }
         );
-      } else if (type === "ACTUAL_AND_NEXTS") {
+      } else if (installmentType === "ACTUAL_AND_NEXTS") {
         console.log("Future Spending", filteredSpendings);
 
         for (let i = 0; i < filteredSpendings.length; i++) {
@@ -190,7 +190,7 @@ module.exports = {
             { useFindAndModify: true }
           );
         }
-      } else if (type === "EVERY") {
+      } else if (installmentType === "EVERY") {
         const installmentSpendings = allSpendings.filter((spending) => {
           return (
             spending.id == installmentId ||
@@ -201,7 +201,7 @@ module.exports = {
         installmentSpendings.map((mappedSpendings, i) => {
           mappedSpendings.name = newValues.name;
           mappedSpendings.value = newValues.value;
-          mappedSpendings.type = newValues.type;
+          mappedSpendings.installmentType = newValues.installmentType;
           // mappedSpendings.receiveDate = moment(newValues.receiveDate).add(
           //   i,
           //   period
