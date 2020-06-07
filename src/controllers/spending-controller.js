@@ -221,7 +221,6 @@ module.exports = {
 
       const SpendingsAndSum = await getAllSpendingsAndSum(req);
       res.status(200).send({
-        update,
         ...SpendingsAndSum,
         message: "Gasto atualizada com sucesso!",
       });
