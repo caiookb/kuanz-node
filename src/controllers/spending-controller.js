@@ -96,10 +96,10 @@ module.exports = {
         _id: spending_id,
         userId: userDecoded._id,
       });
-      const actualDate = moment(actualSpending.receiveDate);
+      const actualDate = moment(actualSpending.paidDate);
       const allSpending = await getAllSpendings(req);
       const futureSpending = allSpending.filter(
-        (Spending) => moment(Spending.receiveDate) > actualDate
+        (Spending) => moment(Spending.paidDate) >= actualDate
       );
       if (installmentType === "ACTUAL") {
         await Spending.remove({
