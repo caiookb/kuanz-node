@@ -32,6 +32,10 @@ const Spending = new Schema({
     required: false,
     default: 0,
   },
+  installmentId: {
+    type: String,
+    required: false,
+  },
   period: {
     type: String,
     required: false,

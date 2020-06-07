@@ -36,6 +36,10 @@ const IncomeSchema = new Schema({
     type: String,
     required: true,
   },
+  installmentId: {
+    type: String,
+    required: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
