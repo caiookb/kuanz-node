@@ -66,7 +66,6 @@ module.exports = {
             req.body.installmentId = spendingFixedId.toString();
             await Spending.create(req.body);
           }
-          await Spending.create(req.body);
         }
       } else {
         await Spending.create(req.body);
