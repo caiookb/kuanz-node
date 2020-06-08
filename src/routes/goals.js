@@ -8,5 +8,6 @@ router.get("/list", auth, GoalsController.getGoalsByUser);
 router.get("/list/:_id", auth, GoalsController.getGoalById);
 router.delete("/delete", auth, GoalsController.deleteGoalsById);
 router.put("/update", auth, GoalsController.updateGoalById);
+router.put("/done", auth, GoalsController.getGoalDone);
 
 module.exports = router;

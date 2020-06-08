@@ -9,6 +9,12 @@ const decoded = async (req) => {
   return userDecoded.user;
 };
 
+const getAllGoals = async (req) => {
+  const userDecoded = await decoded(req);
+  const goals = await Goals.find({ userId: userDecoded._id });
+  return goals;
+};
+
 module.exports = {
   createGoal: async (req, res) => {
     try {
@@ -50,7 +56,11 @@ module.exports = {
         _id: goalToDelete._id,
         userId: goalToDelete.userId,
       });
-      res.status(200).send({ remove, message: "Meta apagada com sucesso!" });
+      const allGoals = await Goals.find({ userId: userDecoded._id });
+
+      res
+        .status(200)
+        .send({ goals: allGoals, message: "Meta apagada com sucesso!" });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
@@ -68,7 +78,14 @@ module.exports = {
         { ...newValues },
         { useFindAndModify: true }
       );
-      res.status(200).send({ update, message: "Meta atualizada com sucesso!" });
+
+      const allGoals = await Goals.find({ userId: userDecoded._id });
+
+      res.status(200).send({
+        update,
+        goals: allGoals,
+        message: "Meta atualizada com sucesso!",
+      });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
@@ -83,6 +100,35 @@ module.exports = {
         _id: _id,
       });
       return res.status(200).send(goal);
+    } catch (err) {
+      res.status(500).send({ error: "Ocorreu algum erro na requisição" });
+    }
+  },
+  getGoalDone: async (req, res) => {
+    try {
+      const userDecoded = await decoded(req);
+      const { _id } = req.body;
+
+      const goal = await Goals.findOne({
+        userId: userDecoded._id,
+        _id: _id,
+      }).map((goal) => {
+        goal.status = "DONE";
+        return goal;
+      });
+
+      await Goals.findByIdAndUpdate(
+        {
+          _id: _id,
+          userId: userDecoded._id,
+        },
+        goal,
+        { useFindAndModify: true }
+      );
+
+      const goals = await Goals.find({ userId: userDecoded._id });
+
+      return res.status(200).send({ goals });
     } catch (err) {
       res.status(500).send({ error: "Ocorreu algum erro na requisição" });
     }
