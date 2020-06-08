@@ -47,15 +47,12 @@ module.exports = {
     try {
       const { goal_id } = req.body;
       const userDecoded = await decoded(req);
-      console.log("GOAL ID", goal_id);
-      const goalToDelete = await Goals.findOne({
+
+      await Goals.remove({
         _id: goal_id,
         userId: userDecoded._id,
       });
-      const remove = await Goals.remove({
-        _id: goalToDelete._id,
-        userId: goalToDelete.userId,
-      });
+
       const allGoals = await Goals.find({ userId: userDecoded._id });
 
       res
